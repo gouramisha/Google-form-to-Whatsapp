@@ -1,0 +1,66 @@
+function onFormSubmit(e) {
+  Logger.log("Form submitted, starting script...");
+
+  var row = e.values; 
+  Logger.log("Raw row data: " + JSON.stringify(row));
+
+  var name = row[1];        // Form ka pehla question (Name)
+  var phone = row[2];       // Form ka dusra question (Phone)
+
+  Logger.log("Extracted Values -> Name: " + name + ", Phone: " + phone);
+
+  var url = "https://app.mbgcart.com/api/contacts";
+  Logger.log("API Endpoint: " + url);
+
+  // Payload
+  var payload = {
+    "phone": phone,
+    "first_name": name,
+    "actions": [
+      { "action": "add_tag", "tag_name": "FormLead" },
+      { "action": "set_field_value", "field_name": "source", "value": "GoogleForm" },
+      {
+      "action": "send_flow",
+      "flow_id": 1739864184060
+    }
+    ]
+  };
+  Logger.log("Prepared Payload: " + JSON.stringify(payload));
+
+  // Options
+  var options = {
+    "method": "post",
+    "contentType": "application/json",
+    "headers": {
+      "X-ACCESS-TOKEN": "1966299.eUeisUVEr0sW9nOlIPNpKPNtchPSNZnQvs"
+    },
+    "muteHttpExceptions": true,
+    "payload": JSON.stringify(payload)
+  };
+  Logger.log("Request Options: " + JSON.stringify(options));
+
+  // API Call
+  try {
+    Logger.log("Sending API Request...");
+    var response = UrlFetchApp.fetch(url, options);
+    Logger.log("Response Code: " + response.getResponseCode());
+    Logger.log("Response Body: " + response.getContentText());
+  } catch (error) {
+    Logger.log("Error occurred: " + error);
+  }
+
+  Logger.log("Script execution finished.");
+}
+
+// ✅ Manual Test
+function testOnFormSubmit() {
+  var dummyEvent = {
+    values: [
+      "025-09-04 22:40:00", // Timestamp
+      "Alok Patel",          // Name
+      "9424700755"           // Phone Number
+    ]
+  };
+
+  onFormSubmit(dummyEvent);
+}
